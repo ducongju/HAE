@@ -126,25 +126,37 @@ If you like, you can prepare the environment [**step by step**](https://github.c
 #### Testing on COCO val2017 dataset using well-trained pose model
 
 ```
-./tools/dist_test.sh configs/higherhrnet_w32_coco_512x512.py work_dirs/HAE_COCO.pth 1 --out test_results/HAE_COCO.json --eval mAP
+./tools/dist_test.sh configs/HAE_COCO.py work_dirs/HAE_COCO.pth 1 --out test_results/HAE_COCO.json --eval mAP
 ```
 
 #### Testing on CrowdPose test dataset using well-trained pose model
 
 ```
-./tools/dist_test.sh configs/higherhrnet_w32_crowdpose_512x512.py work_dirs/HAE_CrowdPose.pth 1 --out test_results/HAE_CrowdPose.json --eval mAP
+./tools/dist_test.sh configs/HAE_CrowdPose.py work_dirs/HAE_CrowdPose.pth 1 --out test_results/HAE_CrowdPose.json --eval mAP
+```
+
+#### Testing on MPII dataset using well-trained pose model
+
+```
+./tools/dist_test.sh configs/HAE_MPII.py work_dirs/HAE_MPII.pth 1 --out test_results/HAE_MPII.json --eval PCKh
 ```
 
 #### Training on COCO train2017 dataset
 
 ```
-./tools/dist_train.sh configs/higherhrnet_w32_coco_512x512.py 2 --work-dir work_dirs/HAE_COCO --cfg-options evaluation.interval=100 model.pretrained=checkpoints/hrnet_w32-36af842e.pth
+./tools/dist_train.sh configs/HAE_COCO.py 2 --work-dir work_dirs/HAE_COCO --cfg-options evaluation.interval=100 model.pretrained=checkpoints/hrnet_w32-36af842e.pth
 ```
 
 #### Training on Crowdpose trainval dataset
 
 ```
-./tools/dist_train.sh configs/higherhrnet_w32_crowdpose_512x512.py 2 --work-dir work_dirs/HAE_CrowdPose --cfg-options evaluation.interval=100 model.pretrained=checkpoints/hrnet_w32-36af842e.pth
+./tools/dist_train.sh configs/HAE_CrowdPose.py 2 --work-dir work_dirs/HAE_CrowdPose --cfg-options evaluation.interval=100 model.pretrained=checkpoints/hrnet_w32-36af842e.pth
+```
+
+#### Training on MPII dataset
+
+```
+./tools/dist_train.sh configs/HAE_MPII.py 2 --work-dir work_dirs/HAE_MPII --cfg-options evaluation.interval=100 model.pretrained=checkpoints/hrnet_w32-36af842e.pth
 ```
 
 #### Using heatmap and tagmap demo

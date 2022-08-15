@@ -1,6 +1,6 @@
 _base_ = [
-    '../../../../_base_/default_runtime.py',
-    '../../../../_base_/datasets/coco.py'
+    '_base_/default_runtime.py',
+    '_base_/datasets/coco.py'
 ]
 checkpoint_config = dict(interval=50)
 evaluation = dict(interval=50, metric='mAP', save_best='AP')
@@ -94,7 +94,13 @@ model = dict(
             push_loss_factor=[0.001, 0.001],
             pull_loss_factor=[0.001, 0.001],
             with_heatmaps_loss=[True, True],
-            heatmaps_loss_factor=[1.0, 1.0])),
+            heatmaps_loss_factor=[1.0, 1.0],
+            use_group_loss=True,
+            use_group_focal_loss=True,
+            o_pull_weight=0.0,
+            l_pull_weight=1.0,
+            h_pull_weight=1.5,
+            group_type='hierarchical_crowdpose')),
     train_cfg=dict(),
     test_cfg=dict(
         num_joints=channel_cfg['dataset_joints'],
@@ -114,7 +120,6 @@ model = dict(
         adjust=True,
         refine=True,
         flip_test=True,
-        # joint_order=[0, 1, 2, 3, 4, 5, 6, 11, 12, 7, 8, 9, 10, 13, 14, 15, 16]))
         joint_order=list(range(17))))
 
 train_pipeline = [
@@ -145,7 +150,6 @@ train_pipeline = [
 val_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='BottomUpGetImgSize', test_scale_factor=[1]),
-    # dict(type='BottomUpGetImgSize', test_scale_factor=[1.0,2.0]),
     dict(
         type='BottomUpResizeAlign',
         transforms=[
@@ -167,10 +171,8 @@ val_pipeline = [
 test_pipeline = val_pipeline
 
 data_root = 'data/coco'
-# data_root = '/home/ud201980601/HRNet-Human-Pose-Estimation-master/data/coco'
 data = dict(
     workers_per_gpu=2,
-    # train_dataloader=dict(samples_per_gpu=24),
     train_dataloader=dict(samples_per_gpu=32),
     val_dataloader=dict(samples_per_gpu=1),
     test_dataloader=dict(samples_per_gpu=1),
@@ -178,7 +180,6 @@ data = dict(
         type='BottomUpCocoDataset',
         ann_file=f'{data_root}/annotations/person_keypoints_train2017.json',
         img_prefix=f'{data_root}/train2017/',
-        # img_prefix=f'{data_root}/images/train2017/',
         data_cfg=data_cfg,
         pipeline=train_pipeline,
         dataset_info={{_base_.dataset_info}}),
@@ -186,17 +187,14 @@ data = dict(
         type='BottomUpCocoDataset',
         ann_file=f'{data_root}/annotations/person_keypoints_val2017.json',
         img_prefix=f'{data_root}/val2017/',
-        # img_prefix=f'{data_root}/images/val2017/',
         data_cfg=data_cfg,
         pipeline=val_pipeline,
         dataset_info={{_base_.dataset_info}}),
     test=dict(
         type='BottomUpCocoDataset',
         ann_file=f'{data_root}/annotations/person_keypoints_val2017.json',
-        # ann_file=f'{data_root}/annotations/person_keypoints_val2017_single.json',
         img_prefix=f'{data_root}/val2017/',
-        # img_prefix=f'{data_root}/images/val2017/',
         data_cfg=data_cfg,
         pipeline=test_pipeline,
-        dataset_info={{_base_.dataset_info}}),
+        dataset_info={{_base_.dataset_info}})
 )

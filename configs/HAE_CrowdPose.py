@@ -1,6 +1,6 @@
 _base_ = [
-    '../../../../_base_/default_runtime.py',
-    '../../../../_base_/datasets/crowdpose.py'
+    '_base_/default_runtime.py',
+    '_base_/datasets/crowdpose.py'
 ]
 checkpoint_config = dict(interval=50)
 evaluation = dict(interval=50, metric='mAP', save_best='AP')
@@ -94,16 +94,12 @@ model = dict(
             pull_loss_factor=[0.001, 0.001],
             with_heatmaps_loss=[True, True],
             heatmaps_loss_factor=[1.0, 1.0],
-            focal_factor=[0.01, 0.1, 0.02],
-            use_focal_loss=False,
-            use_group_loss=False,
-            use_group_focal_loss=False,
+            use_group_loss=True,
+            use_group_focal_loss=True,
             o_pull_weight=0.0,
             l_pull_weight=1.0,
-            h_pull_weight=1.0,
-            group_type='composition_crowdpose',
-            labelloss_weight=1.0,
-            use_labelloss=False)),
+            h_pull_weight=1.5,
+            group_type='hierarchical_crowdpose')),
     train_cfg=dict(),
     test_cfg=dict(
         num_joints=channel_cfg['dataset_joints'],
@@ -153,7 +149,6 @@ train_pipeline = [
 val_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='BottomUpGetImgSize', test_scale_factor=[1]),
-    # dict(type='BottomUpGetImgSize', test_scale_factor=[2.0,1.0]),
     dict(
         type='BottomUpResizeAlign',
         transforms=[
@@ -176,8 +171,8 @@ test_pipeline = val_pipeline
 
 data_root = 'data/crowdpose'
 data = dict(
-    workers_per_gpu=2,
-    train_dataloader=dict(samples_per_gpu=24),
+    workers_per_gpu=4,
+    train_dataloader=dict(samples_per_gpu=32),
     val_dataloader=dict(samples_per_gpu=1),
     test_dataloader=dict(samples_per_gpu=1),
     train=dict(
@@ -187,8 +182,6 @@ data = dict(
         data_cfg=data_cfg,
         pipeline=train_pipeline,
         dataset_info={{_base_.dataset_info}}),
-        # use_subset=False,
-        # subset_factor=1),
     val=dict(
         type='BottomUpCrowdPoseDataset',
         ann_file=f'{data_root}/annotations/mmpose_crowdpose_test.json',
@@ -196,16 +189,11 @@ data = dict(
         data_cfg=data_cfg,
         pipeline=val_pipeline,
         dataset_info={{_base_.dataset_info}}),
-        # use_subset=False,
-        # subset_factor=1),
     test=dict(
         type='BottomUpCrowdPoseDataset',
         ann_file=f'{data_root}/annotations/mmpose_crowdpose_test.json',
-        # ann_file=f'{data_root}/annotations/mmpose_crowdpose_test_single.json',
         img_prefix=f'{data_root}/images/',
         data_cfg=data_cfg,
         pipeline=test_pipeline,
-        dataset_info={{_base_.dataset_info}}),
-        # use_subset=False,
-        # subset_factor=1),
+        dataset_info={{_base_.dataset_info}})
 )
